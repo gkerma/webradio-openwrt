@@ -1,0 +1,47 @@
+# Ezstream source client configuration
+# /etc/config/ezstream
+
+config source 'source'
+	option enabled '0'
+	option name 'WebRadio Playlist'
+
+config server 'server'
+	option hostname '127.0.0.1'
+	option port '8000'
+	option password 'hackme'
+	option mount '/live'
+	option protocol 'http'
+	option tls '0'
+	option reconnect_attempts '0'
+
+config stream 'stream'
+	option format 'MP3'
+	option bitrate '128'
+	option samplerate '44100'
+	option channels '2'
+	option public '0'
+	option name 'CyberMind WebRadio'
+	option genre 'Various'
+	option description 'Streaming from OpenWrt'
+	option url 'http://localhost:8000/'
+
+config playlist 'playlist'
+	option type 'files'
+	option directory '/srv/webradio/music'
+	option shuffle '1'
+	option loop '1'
+	option playlist_file '/srv/webradio/playlists/current.m3u'
+
+config encoder 'encoder'
+	option program '/usr/bin/ffmpeg'
+	# Re-encode to ensure consistent bitrate
+	option reencode '0'
+
+config metadata 'metadata'
+	option format_str '@a@ - @t@'
+	option refresh_interval '0'
+	option normalize_strings '1'
+	option no_updates '0'
+
+config logging 'logging'
+	option verbosity '1'

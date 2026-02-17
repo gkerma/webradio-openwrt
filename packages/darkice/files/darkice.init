@@ -1,0 +1,67 @@
+#!/bin/sh /etc/rc.common
+# DarkIce init script for OpenWrt
+# Copyright (C) 2024 CyberMind.FR
+
+START=96
+STOP=10
+
+USE_PROCD=1
+
+PROG=/usr/bin/darkice
+CONFIG=/etc/darkice.cfg
+GENCONFIG=/usr/lib/darkice/darkice-genconfig.sh
+
+validate_section() {
+	uci_load_validate darkice darkice "$1" "$2" \
+		'enabled:bool:0'
+}
+
+start_service() {
+	local enabled
+
+	validate_section main || {
+		echo "Validation failed"
+		return 1
+	}
+
+	[ "$enabled" = "1" ] || {
+		echo "DarkIce is disabled"
+		return 0
+	}
+
+	# Generate config from UCI
+	if [ -x "$GENCONFIG" ]; then
+		"$GENCONFIG" > "$CONFIG"
+	else
+		echo "Config generator not found: $GENCONFIG"
+		return 1
+	fi
+
+	[ -f "$CONFIG" ] || {
+		echo "Config file not generated: $CONFIG"
+		return 1
+	}
+
+	procd_open_instance darkice
+	procd_set_param command "$PROG" -c "$CONFIG"
+	procd_set_param respawn
+	procd_set_param stderr 1
+	procd_set_param stdout 1
+	procd_set_param pidfile /var/run/darkice.pid
+	procd_close_instance
+
+	echo "DarkIce started"
+}
+
+stop_service() {
+	echo "Stopping DarkIce"
+}
+
+reload_service() {
+	stop
+	start
+}
+
+service_triggers() {
+	procd_add_reload_trigger "darkice"
+}

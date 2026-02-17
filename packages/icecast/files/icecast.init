@@ -1,0 +1,76 @@
+#!/bin/sh /etc/rc.common
+# Icecast streaming server - procd init script
+# Copyright (C) 2024 CyberMind.FR
+
+START=90
+STOP=10
+USE_PROCD=1
+
+PROG=/usr/bin/icecast
+CONF=/etc/icecast.xml
+GENCONFIG=/usr/lib/icecast/genconfig.sh
+
+validate_section() {
+	uci_load_validate icecast server "$1" "$2" \
+		'enabled:bool:0' \
+		'hostname:string:localhost' \
+		'port:port:8000' \
+		'admin_user:string:admin' \
+		'admin_password:string' \
+		'source_password:string' \
+		'relay_password:string' \
+		'max_listeners:uinteger:32' \
+		'max_sources:uinteger:4' \
+		'location:string:Earth' \
+		'admin_email:string:admin@localhost'
+}
+
+start_service() {
+	local enabled
+
+	config_load icecast
+	config_get enabled server enabled 0
+
+	[ "$enabled" = "1" ] || {
+		echo "Icecast is disabled in config"
+		return 0
+	}
+
+	# Generate config from UCI
+	[ -x "$GENCONFIG" ] && $GENCONFIG
+
+	# Validate config
+	[ -f "$CONF" ] || {
+		echo "Error: $CONF not found"
+		return 1
+	}
+
+	# Ensure directories exist with correct permissions
+	mkdir -p /var/log/icecast /var/run/icecast
+	chown icecast:icecast /var/log/icecast /var/run/icecast
+
+	procd_open_instance
+	procd_set_param command $PROG -c $CONF
+	procd_set_param respawn ${respawn_threshold:-3600} ${respawn_timeout:-5} ${respawn_retry:-5}
+	procd_set_param user icecast
+	procd_set_param group icecast
+	procd_set_param stdout 1
+	procd_set_param stderr 1
+	procd_set_param pidfile /var/run/icecast/icecast.pid
+	procd_set_param file $CONF
+	procd_close_instance
+}
+
+stop_service() {
+	:
+}
+
+reload_service() {
+	# Regenerate config and restart
+	[ -x "$GENCONFIG" ] && $GENCONFIG
+	procd_send_signal icecast '*' HUP
+}
+
+service_triggers() {
+	procd_add_reload_trigger "icecast"
+}

@@ -1,0 +1,73 @@
+# Icecast server configuration
+# /etc/config/icecast
+
+config server 'server'
+	option enabled '0'
+	option hostname 'localhost'
+	option port '8000'
+	option admin_user 'admin'
+	option admin_password 'hackme'
+	option source_password 'hackme'
+	option relay_password 'hackme'
+	option max_listeners '32'
+	option max_sources '4'
+	option location 'Earth'
+	option admin_email 'admin@localhost'
+
+# Default mount point for live stream
+config mount 'live'
+	option name '/live'
+	option type 'normal'
+	option fallback_mount '/fallback.mp3'
+	option public '0'
+	option max_listeners '0'
+	option hidden '0'
+	option genre 'Various'
+	option description 'Live Stream'
+
+# Optional fallback mount (silence/placeholder)
+config mount 'fallback'
+	option name '/fallback.mp3'
+	option type 'normal'
+	option public '0'
+	option hidden '1'
+
+# Logging configuration
+config logging 'logging'
+	option loglevel '3'
+	option accesslog '/var/log/icecast/access.log'
+	option errorlog '/var/log/icecast/error.log'
+	option logsize '10000'
+	option logarchive '1'
+
+# Security settings
+config security 'security'
+	option chroot '0'
+	option changeowner '1'
+	option user 'icecast'
+	option group 'icecast'
+
+# SSL/TLS settings
+config ssl 'ssl'
+	option enabled '0'
+	option port '8443'
+	option certificate '/etc/ssl/certs/icecast.pem'
+	option key '/etc/ssl/private/icecast.key'
+	option cipher_suite 'ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-GCM-SHA384'
+
+# Rate limiting and abuse prevention
+config ratelimit 'ratelimit'
+	option enabled '0'
+	option max_connections_per_ip '5'
+	option burst_size '65535'
+	option queue_size '524288'
+	option client_timeout '30'
+	option header_timeout '15'
+	option source_timeout '10'
+
+# Paths
+config paths 'paths'
+	option basedir '/usr/share/icecast'
+	option logdir '/var/log/icecast'
+	option webroot '/usr/share/icecast/web'
+	option adminroot '/usr/share/icecast/admin'

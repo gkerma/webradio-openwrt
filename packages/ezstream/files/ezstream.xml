@@ -1,0 +1,50 @@
+<!-- Ezstream configuration - Default template -->
+<!-- This file will be regenerated from /etc/config/ezstream -->
+<ezstream>
+    <servers>
+        <server>
+            <name>icecast</name>
+            <protocol>http</protocol>
+            <hostname>127.0.0.1</hostname>
+            <port>8000</port>
+            <password>hackme</password>
+            <tls>none</tls>
+            <reconnect_attempts>0</reconnect_attempts>
+        </server>
+    </servers>
+
+    <streams>
+        <stream>
+            <name>stream</name>
+            <mountpoint>/live</mountpoint>
+            <public>false</public>
+            <intake>playlist</intake>
+            <server>icecast</server>
+            <format>MP3</format>
+            <stream_name>CyberMind WebRadio</stream_name>
+            <stream_url>http://localhost:8000/</stream_url>
+            <stream_genre>Various</stream_genre>
+            <stream_description>Streaming from OpenWrt</stream_description>
+            <stream_bitrate>128</stream_bitrate>
+            <stream_samplerate>44100</stream_samplerate>
+            <stream_channels>2</stream_channels>
+        </stream>
+    </streams>
+
+    <intakes>
+        <intake>
+            <name>playlist</name>
+            <type>playlist</type>
+            <filename>/srv/webradio/playlists/current.m3u</filename>
+            <shuffle>true</shuffle>
+            <stream_once>false</stream_once>
+        </intake>
+    </intakes>
+
+    <metadata>
+        <format_str>@a@ - @t@</format_str>
+        <refresh_interval>0</refresh_interval>
+        <normalize_strings>true</normalize_strings>
+        <no_updates>false</no_updates>
+    </metadata>
+</ezstream>
